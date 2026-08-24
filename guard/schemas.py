@@ -33,6 +33,8 @@ class ThreatType(str, Enum):
     MEDICAL_ADVICE = "medical_advice"
     SAFETY_DATA_TAMPERING = "safety_data_tampering"
     AMBIGUOUS = "ambiguous"
+    HYPOTHETICAL_BYPASS = "hypothetical_bypass"   # fictional/counterfactual framing to bypass rules
+    PROMPT_OVERLOAD = "prompt_overload"           # harmful payload buried in a long prompt
     OTHER = "other"
 
 
