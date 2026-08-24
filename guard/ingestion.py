@@ -129,11 +129,12 @@ _JAILBREAK_SIGNATURES: list[str] = [
     r"(act|behave|respond).{0,20}as if.{0,30}(no|without|bypass).{0,20}"
     r"(restriction|limit|filter|rule)",
     # ── Hypothetical / roleplay bypass ───────────────────────────────────
-    r"(hypothetically|imagine|suppose|pretend|for a (story|novel|game|roleplay))"
-    r".{0,60}(no|without|ignoring|bypass).{0,30}"
-    r"(fda|regulation|compliance|safety|rules|restrictions?)",
-    r"imagine.{0,30}(fda|regulation|compliance|law|restriction).{0,20}"
-    r"(didn.t exist|not required|gone|removed|ignored)",
+    r"(hypothetically|imagine|suppose|what if|let.?s say|pretend).{0,80}"
+    r"(fda|regulation|compliance|safety|rules|law|restriction).{0,50}"
+    r"(was not|not required|didn.?t exist|do(es)? not exist|gone|ignored|removed|bypass|without|no )",
+    r"(hypothetically|imagine|suppose|what if|let.?s say|pretend).{0,80}"
+    r"(no|without|ignoring|bypass|not following|waiv\w*).{0,50}"
+    r"(fda|regulation|compliance|safety|rules|restriction)",
     # ── Multi-step / split injection ─────────────────────────────────────
     r"(step 1|first).{0,50}(step 2|second|then).{0,50}(step 3|third|finally)",
     r"you (must|will|shall|are required to) (ignore|bypass|disregard|override)",
