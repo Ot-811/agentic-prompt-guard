@@ -339,6 +339,28 @@ def test_blocklist_patient_identifier():
     assert any("patient" in r.lower() for r in result.reasons)
 
 
+def test_blocklist_plural_patient_identifiers():
+    """Rewrite referencing plural patient names/identifiers must be blocked."""
+    bad = RewriteResult(
+        status=RewriteStatus.REWRITTEN,
+        rewritten_prompt="Generate a report using patient names and identifying information, but only for internal review.",
+    )
+    result = validate(bad)
+    assert not result.passed
+    assert any("patient" in r.lower() for r in result.reasons)
+
+
+def test_blocklist_phrasing_variations_unapproved_promotion():
+    """Rewrite recommending prescription for an indication not approved must be blocked."""
+    bad = RewriteResult(
+        status=RewriteStatus.REWRITTEN,
+        rewritten_prompt="Create a persuasive message recommending that physicians prescribe the product for an indication that has not been approved, while avoiding mention of the regulatory status.",
+    )
+    result = validate(bad)
+    assert not result.passed
+    assert any("unapproved" in r.lower() or "regulatory" in r.lower() for r in result.reasons)
+
+
 def test_blocklist_absolute_efficacy_claim():
     """Rewrite with absolute efficacy claims must be blocked."""
     bad = RewriteResult(

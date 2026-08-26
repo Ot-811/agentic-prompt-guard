@@ -41,10 +41,14 @@ _BLOCKLIST: list[tuple[str, str]] = [
     # ── Off-label / unapproved promotion ────────────────────────────────
     (r"\boff[- ]?label\b",
      "off-label content"),
-    (r"\bunapproved (indication|use|dosing|application)\b",
+    (r"\b(unapproved|not approved) (indication|use|dosing|application)\b",
      "unapproved indication reference"),
-    (r"\b(promot|market|advertis)\w*\b.{0,30}\bunapproved\b",
+    (r"\bindication.{0,25}(has not|is not) (been )?approved\b",
+     "unapproved indication reference"),
+    (r"\b(promot|market|advertis|recommend|prescrib)\w*\b.{0,40}\b(unapproved|not approved|has not been approved)\b",
      "promotion of unapproved use"),
+    (r"\b(avoid|omit|without).{0,30}(mention|disclos)\w*.{0,30}(regulatory|fda|approval|status)\b",
+     "omission of regulatory status"),
 
     # ── Jailbreak / injection remnants ──────────────────────────────────
     (r"ignore .*(instructions|rules)",
@@ -81,7 +85,7 @@ _BLOCKLIST: list[tuple[str, str]] = [
      "safety record alteration"),
 
     # ── Identifiable patient data ───────────────────────────────────────
-    (r"\bpatient.{0,10}(name|identifier|identity|contact|address)\b",
+    (r"\bpatient.{0,10}(names?|identifiers?|identit(y|ies)|contacts?|address(es)?)\b",
      "patient-identifying information"),
     (r"\b(identifiable|identifying) (patient|individual|person)\b",
      "identifiable individual reference"),
