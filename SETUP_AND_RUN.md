@@ -12,11 +12,14 @@ local LLM (Ollama) is optional.
 |-------------|-------|
 | **Python 3.9+** | Check with `python3 --version`. |
 | `pip` + `venv` | Ships with standard Python. On Debian/Ubuntu: `sudo apt install python3-venv python3-pip`. |
-| ~50 MB disk | For the virtual environment and dependencies. |
+| ~600 MB disk | For the virtual environment and dependencies (Streamlit + sentence-transformers pull in the most). |
 | **Ollama** *(optional)* | Only if you want the LLM path instead of heuristics. See §6. |
 
-No internet is needed at runtime — only during setup, to install the three
-Python packages (`pandas`, `pydantic`, `pytest`).
+No internet is needed at runtime — only during setup, to install the Python
+packages in `requirements.txt` (`pandas`, `pydantic`, `pytest`,
+`sentence-transformers`, `numpy`, `streamlit`). The `sentence-transformers`
+model (~22 MB) downloads on its first use; without it the pipeline falls back to
+a `difflib` similarity check and still runs fully offline.
 
 ---
 
@@ -97,6 +100,24 @@ print(result.audit_log)
 
 ---
 
+## 4b. Run the web UI (Streamlit)
+
+An interactive dashboard exposes every pipeline stage in its own tab. With the
+environment activated:
+
+```bash
+streamlit run app.py
+```
+
+It opens `http://localhost:8501` in your browser. Tabs: **Live Guard**,
+**Preprocessing**, **Regex / Signatures**, **Embeddings**, **Dataset
+Ingestion**, **Generate Dataset**, and **Evaluate**. The sidebar toggles the
+LLM (Ollama) vs. heuristic backend and reports which similarity backend is
+active. To run headless / on a fixed port: `streamlit run app.py
+--server.port 8501 --server.headless true`.
+
+---
+
 ## 5. Generate training data
 
 ```bash
@@ -133,7 +154,7 @@ code via `PromptGuard(host="http://my-ollama-host:11434")`.
 ## 7. Run the tests
 
 ```bash
-pytest -q          # 11 tests, offline
+pytest -q          # offline test suite (heuristic backend)
 ```
 
 ---
@@ -159,9 +180,12 @@ agentic_prompt_guard/
 ├── README.md                # architecture + design notes
 ├── SETUP_AND_RUN.md         # this file
 ├── PROJECT_REPORT.md        # full project report
-├── guard/                   # the pipeline package (see README)
+├── app.py                   # Streamlit web UI (this guide, §4b)
+├── guard/                   # the pipeline package (incl. datasets.py ingestion)
 ├── tests/                   # pytest suite
 ├── generate_dataset.py      # synthetic-data generator
-├── data/                    # seed dataset + source PDF & PPTX
-└── generated_pharma_dataset_100000.csv
+└── data/                    # seed dataset + source PDF & PPTX
 ```
+
+> The 100k-row `generated_pharma_dataset_*.csv` is **not** shipped in the zip to
+> keep it small — regenerate it any time with `python generate_dataset.py`.

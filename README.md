@@ -56,9 +56,30 @@ User prompt
 ## Install
 
 ```bash
-pip install -r requirements.txt        # pandas, pydantic, pytest
+pip install -r requirements.txt        # pandas, pydantic, pytest, streamlit
 # optional, for the LLM path:  install Ollama and `ollama pull llama3`
 ```
+
+## Frontend (Streamlit)
+
+An interactive dashboard exposes every stage of the pipeline in its own tab.
+
+```bash
+streamlit run app.py
+```
+
+| Tab | What it shows |
+|-----|---------------|
+| 🛡️ **Live Guard** | Full pipeline on a prompt: verdict, threats, rewrite, sandbox, audit log. |
+| 🔬 **Preprocessing** | The normalisation cascade peeling back a disguised prompt, pass by pass. |
+| 🔎 **Regex / Signatures** | Jailbreak signature hits, decoded payloads, and heuristic threat labels. |
+| 🧠 **Embeddings** | Top-k nearest known-attack strings by semantic similarity (bar chart). |
+| 📥 **Dataset Ingestion** | Upload/load a CSV, auto-detect columns, view label distribution + stats. |
+| 🧪 **Generate Dataset** | Synthesise labelled prompts (rows/seed/dedup) and download the CSV. |
+| 📊 **Evaluate** | Score the guard against an ingested labelled dataset (accuracy/P/R/F1). |
+
+The sidebar toggles the LLM (Ollama) vs. heuristic backend and reports which
+similarity backend (sentence-transformers or the difflib fallback) is active.
 
 ## Usage
 
@@ -137,7 +158,9 @@ agentic_prompt_guard/
 │   ├── sandbox.py        # step 5
 │   ├── pipeline.py       # step 6 router + verification
 │   ├── schemas.py        # Pydantic contract / classification enums
+│   ├── datasets.py       # dataset ingestion: load, column-detect, stats, evaluate
 │   └── cli.py            # `python -m guard.cli check|eval`
+├── app.py                # Streamlit frontend (all stages, one tab each)
 ├── tests/test_pipeline.py
 ├── generate_dataset.py
 ├── data/                 # seed dataset + source PDF & PPTX

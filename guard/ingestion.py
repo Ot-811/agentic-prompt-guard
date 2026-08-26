@@ -306,6 +306,32 @@ class IngestionResult:
 
 
 # ---------------------------------------------------------------------------
+# Introspection helper (used by the frontend to visualise the cascade)
+# ---------------------------------------------------------------------------
+
+
+def normalization_stages(prompt: str) -> list[tuple[str, str]]:
+    """Return the text after each normalisation pass, in order.
+
+    Each tuple is ``(pass_name, text_after_pass)``.  Purely for explainability
+    — it lets a UI show exactly how a disguised prompt is peeled back to its
+    canonical form.  The detector operates on :func:`ingest`'s ``normalized``
+    field, which equals the last stage returned here (before ``.strip()``).
+    """
+    after_invisible = _strip_invisibles(prompt)
+    after_homoglyph = _apply_homoglyph(after_invisible)
+    after_ws = _defuse_whitespace_injection(after_homoglyph)
+    after_leet = _apply_leetspeak(after_ws)
+    return [
+        ("raw input", prompt),
+        ("strip invisibles + NFKC", after_invisible),
+        ("homoglyph substitution", after_homoglyph),
+        ("whitespace de-injection", after_ws),
+        ("leetspeak normalisation", after_leet),
+    ]
+
+
+# ---------------------------------------------------------------------------
 # Public entry point
 # ---------------------------------------------------------------------------
 

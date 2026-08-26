@@ -174,6 +174,22 @@ class SemanticMatcher:
         score = float(scores[idx])
         return score >= self.threshold, round(score, 4), self.corpus[idx]
 
+    def top_matches(self, prompt: str, k: int = 5) -> list[tuple[str, float]]:
+        """Return the *k* most similar attack strings with their cosine scores.
+
+        Primarily used by the frontend to visualise *why* a prompt was (or was
+        not) flagged by the embedding layer.  Results are sorted by descending
+        similarity.
+        """
+        query_vec: "np.ndarray" = self._model.encode(
+            [prompt],
+            normalize_embeddings=True,
+            show_progress_bar=False,
+        )[0]
+        scores: "np.ndarray" = self._attack_vecs @ query_vec
+        order = np.argsort(scores)[::-1][:k]
+        return [(self.corpus[int(i)], round(float(scores[int(i)]), 4)) for i in order]
+
 
 # ---------------------------------------------------------------------------
 # Singleton accessor
@@ -224,3 +240,21 @@ def difflib_similarity(prompt: str, corpus: list[str]) -> tuple[float, str]:
         if ratio > best:
             best, nearest = ratio, attack
     return round(best, 4), nearest
+
+
+def difflib_top_matches(
+    prompt: str, corpus: list[str], k: int = 5
+) -> list[tuple[str, float]]:
+    """``top_matches`` equivalent for the difflib fallback path.
+
+    Returns the *k* corpus strings with the highest ``SequenceMatcher`` ratio,
+    sorted by descending similarity.  Used by the frontend when
+    ``sentence-transformers`` is unavailable.
+    """
+    low = prompt.lower()
+    scored = [
+        (attack, round(SequenceMatcher(None, low, attack.lower()).ratio(), 4))
+        for attack in corpus
+    ]
+    scored.sort(key=lambda pair: pair[1], reverse=True)
+    return scored[:k]
