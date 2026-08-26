@@ -9,7 +9,7 @@ split-request) plus the pharma-domain risks from the seed dataset.
 from enum import Enum
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 
 class Category(str, Enum):
@@ -70,6 +70,15 @@ class ValidationResult(BaseModel):
 
     passed: bool
     reasons: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _failed_must_have_reasons(self) -> "ValidationResult":
+        """A failed validation must always explain why."""
+        if not self.passed and not self.reasons:
+            raise ValueError(
+                "ValidationResult with passed=False must include at least one reason"
+            )
+        return self
 
 
 class SandboxResult(BaseModel):
