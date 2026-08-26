@@ -230,7 +230,7 @@ class PromptGuard:
             )
 
         # Step 4: deterministic validation.
-        validation = validate(rewrite)
+        validation = validate(rewrite,verdict)
         log.append(f"validate: passed={validation.passed} reasons={validation.reasons}")
         if not validation.passed:
             log.append("blocked: validation failed")
