@@ -150,10 +150,29 @@ class SafeRewriter:
         # Try the LLM first when available.
         if self.llm is not None:
             result = self._rewrite_llm(prompt, verdict)
+
             if result is not None:
+                # Known pharma risks have a safe remediation path.
+                # If the LLM incorrectly says INVALID, fall back to the
+                # deterministic pharma rewrite instead of rejecting.
+                pharma_threats = {
+                    ThreatType.PII_PHI_EXPOSURE,
+                    ThreatType.OFF_LABEL_PROMOTION,
+                    ThreatType.MISLEADING_CLAIM,
+                    ThreatType.UNSAFE_TARGETING,
+                    ThreatType.MEDICAL_ADVICE,
+                    ThreatType.SAFETY_DATA_TAMPERING,
+                }
+
+                if (
+                    result.status == RewriteStatus.INVALID
+                    and pharma_threats.intersection(verdict.threat_types)
+                ):
+                    return self._rewrite_heuristic(prompt, verdict)
+
                 return result
 
-        # Deterministic fallback when the LLM is unavailable or fails.
+        # Deterministic fallback when Ollama is unavailable or fails.
         return self._rewrite_heuristic(prompt, verdict)
 
     def _rewrite_llm(
